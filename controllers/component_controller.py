@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from services.computador_service import ComputadorService
+from services.componente_service import ComputadorService
 computador_bp = Blueprint('computador_bp', __name__)
 
 # Importar la sesión de la base de datos desde config/database.py
