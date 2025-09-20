@@ -1,12 +1,12 @@
 from flask import Blueprint, request, jsonify
-from services.componente_service import ComputadorService
+from services.componente_service import ComponenteService
 computador_bp = Blueprint('computador_bp', __name__)
 
 # Importar la sesión de la base de datos desde config/database.py
 from config.database import get_db_session
 
 # Instancia global de servicio (en producción usar contexto de app o request)
-service = ComputadorService(get_db_session())
+service = ComponenteService(get_db_session())
 
 
 @computador_bp.route('/computadores', methods=['GET'])
