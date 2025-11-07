@@ -2,7 +2,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 from services.user_services import UsersService
-from flask import Blueprint, request, jsonify, render_template
+from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token
 
 from config.database import get_db_session
@@ -36,16 +36,6 @@ def login():
         access_token = create_access_token(identity=user.id)
         return jsonify({'access_token': access_token, 'user': {'id': user.id, 'username': user.username}}), 200
     return jsonify({'error': 'Credenciales invalidas'}), 401
-
-
-
-@user_bp.route('/login', methods=['GET'])
-def login_page():
-    """
-    GET /login
-    Sirve la plantilla HTML del formulario de login.
-    """
-    return render_template('login.html')
 
 @user_bp.route('/users', methods=['GET'])
 def get_users():

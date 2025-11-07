@@ -1,14 +1,18 @@
-from flask import Flask, redirect, send_from_directory
+from flask import Flask, redirect, send_from_directory, jsonify
 import os
-from flask import render_template
 from models.db import Base
 from config.database import engine
 from config.jwt import * #Importar jwt de la carpeta config
 from controllers.component_controller import computador_bp
 from controllers.user_controllers import user_bp, register_jwt_error_handlers
+from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 app = Flask(__name__)
+#Agregar el jwt de la carpeta config
+# Allow cross-origin requests so frontend served from a different origin can call the API
+CORS(app)
 
+#Agregar el jwt de la carpeta config
 #Agregar el jwt de la carpeta config
 app.config['JWT_SECRET_KEY'] = JWT_SECRET_KEY
 app.config['JWT_TOKEN_LOCATION'] = JWT_TOKEN_LOCATION
@@ -34,10 +38,10 @@ jwt = JWTManager(app)
 register_jwt_error_handlers(app)
 
 
-# Ruta raíz: redirige a /login para evitar 404 al visitar '/'
+# Ruta raíz: devolver información simple sobre la API (no sirve frontend)
 @app.route('/')
 def index():
-    return redirect('/login')
+    return jsonify({'message': 'API backend. Sirve endpoints JSON. Coloca el frontend en un repo separado.'}), 200
 
 
 # Manejar favicon.ico: servir si existe en static, sino devolver 204 (vacio)
@@ -49,11 +53,14 @@ def favicon():
     return ('', 204)
 
 
-# Servir la página de gestión de computadores (interfaz CRUD)
-@app.route('/computadores/ui')
-def computadores_ui_page():
-    # Página UI separada del endpoint API que también usa /computadores
-    return render_template('computadores.html')
+# Nota: la UI ahora se sirve desde el repositorio frontend; el backend expone solo JSON.
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    # Logout stateless: cliente debe borrar el token. Esta ruta existe para que el cliente
+    # pueda notificar al servidor y recibe una respuesta 200.
+    return jsonify({'message': 'Logged out'}), 200
 
 if __name__ == "__main__":
     # Crear tablas automáticamente si no existen
