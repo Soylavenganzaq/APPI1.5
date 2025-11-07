@@ -2,7 +2,8 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 from services.user_services import UsersService
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template
+from flask_jwt_extended import create_access_token
 
 from config.database import get_db_session
 
@@ -23,16 +24,28 @@ def login():
         password (str): Contraseña del usuario.
     Respuesta: JSON con el token JWT o mensaje de error si las credenciales son inválidas.
     """
-    data = request.get_json()
+    data = request.get_json() or {}
     username = data.get('username')
     password = data.get('password')
     if not username or not password:
         logger.warning("Login fallido: usuario o contrasena no proporcionados")
-        return jsonify({'error': 'El nombre de usuario y la contrasena son obligatorios'}), 400, {'Content-Type': 'application/json; charset=utf-8'}
+        return jsonify({'error': 'El nombre de usuario y la contrasena son obligatorios'}), 400
     user = service.authenticate_user(username, password)
     if user:
-        return jsonify([{"id": u.id, "username": u.username}for u in user]), 200, {'Content-Type': 'application/json; charset=utf-8'}
-    return jsonify({'error': 'Credenciales invalidas'}), 401, {'Content-Type': 'application/json; charset=utf-8'}
+        # Crear token JWT y devolverlo al cliente
+        access_token = create_access_token(identity=user.id)
+        return jsonify({'access_token': access_token, 'user': {'id': user.id, 'username': user.username}}), 200
+    return jsonify({'error': 'Credenciales invalidas'}), 401
+
+
+
+@user_bp.route('/login', methods=['GET'])
+def login_page():
+    """
+    GET /login
+    Sirve la plantilla HTML del formulario de login.
+    """
+    return render_template('login.html')
 
 @user_bp.route('/users', methods=['GET'])
 def get_users():
@@ -120,3 +133,20 @@ def delete_user(user_id):
         return jsonify({'message': 'Usuario eliminado correctamente'}), 200, {'Content-Type': 'application/json; charset=utf-8'}
     logger.warning(f"Usuario no encontrado para eliminar: {user_id}")
     return jsonify({'error': 'Usuario no encontrado'}), 404, {'Content-Type': 'application/json; charset=utf-8'}
+
+
+def register_jwt_error_handlers(app):
+    """
+    Registra manejadores mínimos de error para JWT en la app Flask.
+    Esta función es intencionalmente simple: devuelve JSON con el código de estado
+    para errores de autorización comunes. Se puede extender según sea necesario.
+    """
+    @app.errorhandler(401)
+    def _handle_401(err):
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    @app.errorhandler(422)
+    def _handle_422(err):
+        return jsonify({'error': 'Invalid request'}), 422
+
+    return None

@@ -1,4 +1,4 @@
-from models.user_model import user
+from models.user_model import User
 from sqlalchemy.orm import Session
 
 
@@ -19,7 +19,7 @@ class UserRepository:
         mostrar catálogos, listados generales o para operaciones que requieran acceder
         a la colección completa de usuarios.
         """
-        return self.db.query(user).all()
+        return self.db.query(User).all()
 
     def get_user_by_id(self, user_id: int):
         """
@@ -29,7 +29,7 @@ class UserRepository:
         información o al realizar operaciones de actualización o eliminación.
         Devuelve la instancia de User si existe, o None si no se encuentra.
         """
-        return self.db.query(user).filter(user.id == user_id).first()
+        return self.db.query(User).filter(User.id == user_id).first()
 
     def create_user(self, username: str, password: str):
         """
@@ -39,7 +39,7 @@ class UserRepository:
         retorna el nuevo usuario creado, incluyendo su ID asignado automáticamente.
         Es útil para registrar nuevos usuarios en el sistema.
         """
-        new_user = user(username=username, password=password)
+        new_user = User(username=username, password=password)
         self.db.add(new_user)
         self.db.commit()
         self.db.refresh(new_user)
