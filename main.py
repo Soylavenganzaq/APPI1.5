@@ -4,10 +4,11 @@ from models.db import Base
 from config.database import engine
 from config.jwt import * #Importar jwt de la carpeta config
 from controllers.component_controller import computador_bp
-from controllers.user_controllers import user_bp, register_jwt_error_handlers
 from flask_cors import CORS
+from controllers.user_controllers import user_bp, register_jwt_error_handlers
 from flask_jwt_extended import JWTManager
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 #Agregar el jwt de la carpeta config
 # Allow cross-origin requests so frontend served from a different origin can call the API
 CORS(app)
