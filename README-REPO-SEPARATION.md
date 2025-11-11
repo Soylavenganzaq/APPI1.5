@@ -12,3 +12,4 @@ Instrucciones rápidas:
 - Levantar frontend: `cd frontend && python -m http.server 8080` y abrir `http://127.0.0.1:8080/index.html`.
 
 Si quieres, puedo inicializar repos git locales separados (`git init`) para backend y frontend y preparar los commits iniciales.
+p

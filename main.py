@@ -67,4 +67,4 @@ if __name__ == "__main__":
     print("Verificando y creando tablas de base de datos si es necesario...")
     Base.metadata.create_all(engine)
     print("Tablas listas.")
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=4729, debug=True)
